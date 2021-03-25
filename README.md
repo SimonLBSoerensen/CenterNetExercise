@@ -1,1 +1,1 @@
-# CenterNetExercise
+# CenterNet Exercise Solution
