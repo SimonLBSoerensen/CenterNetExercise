@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 import cv2
+import cv2from google.colab.patches import cv2_imshow
 from .ddd_utils import compute_box_3d, project_to_image, draw_box_3d
 
 class Debugger(object):
@@ -81,7 +82,7 @@ class Debugger(object):
       bg * (1 - trans)).astype(np.uint8)
   
   def show_img(self, pause = False, imgId = 'default'):
-    cv2.imshow('{}'.format(imgId), self.imgs[imgId])
+    cv2_imshow('{}'.format(imgId), self.imgs[imgId])
     if pause:
       cv2.waitKey()
   
@@ -217,7 +218,7 @@ class Debugger(object):
   def show_all_imgs(self, pause=False, time=0):
     if not self.ipynb:
       for i, v in self.imgs.items():
-        cv2.imshow('{}'.format(i), v)
+        cv2_imshow('{}'.format(i), v)
       if cv2.waitKey(0 if pause else 1) == 27:
         import sys
         sys.exit(0)
