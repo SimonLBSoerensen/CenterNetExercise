@@ -224,7 +224,6 @@ class Debugger(object):
         if not self.ipynb:
             for i, v in self.imgs.items():
                 cv2.imwrite(os.path.join(self.folder_out, '{}-{}.png'.format(i, str(uuid.uuid4()))), v)
-
         else:
             self.ax = None
             nImgs = len(self.imgs)
@@ -441,8 +440,6 @@ gta_class_name = [
     'p', 'v'
 ]
 
-raccoons_class_name = ['raccoon']
-
 pascal_class_name = ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus",
                      "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike",
                      "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
@@ -462,6 +459,8 @@ coco_class_name = [
     'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase',
     'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
+
+raccoons_class_name = ['raccoon']
 
 color_list = np.array(
     [
