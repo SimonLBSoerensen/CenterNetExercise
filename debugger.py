@@ -105,22 +105,22 @@ class Debugger(object):
         self.imgs[img_id] = self.imgs[img_id].astype(np.uint8).copy()
 
     '''
-    # slow version
-    def gen_colormap(self, img, output_res=None):
-      # num_classes = len(self.colors)
-      img[img < 0] = 0
-      h, w = img.shape[1], img.shape[2]
-      if output_res is None:
-        output_res = (h * self.down_ratio, w * self.down_ratio)
-      color_map = np.zeros((output_res[0], output_res[1], 3), dtype=np.uint8)
-      for i in range(img.shape[0]):
-        resized = cv2.resize(img[i], (output_res[1], output_res[0]))
-        resized = resized.reshape(output_res[0], output_res[1], 1)
-        cl = self.colors[i] if not (self.theme == 'white') \
-             else 255 - self.colors[i]
-        color_map = np.maximum(color_map, (resized * cl).astype(np.uint8))
-      return color_map
-      '''
+  # slow version
+  def gen_colormap(self, img, output_res=None):
+    # num_classes = len(self.colors)
+    img[img < 0] = 0
+    h, w = img.shape[1], img.shape[2]
+    if output_res is None:
+      output_res = (h * self.down_ratio, w * self.down_ratio)
+    color_map = np.zeros((output_res[0], output_res[1], 3), dtype=np.uint8)
+    for i in range(img.shape[0]):
+      resized = cv2.resize(img[i], (output_res[1], output_res[0]))
+      resized = resized.reshape(output_res[0], output_res[1], 1)
+      cl = self.colors[i] if not (self.theme == 'white') \
+           else 255 - self.colors[i]
+      color_map = np.maximum(color_map, (resized * cl).astype(np.uint8))
+    return color_map
+    '''
 
     def gen_colormap(self, img, output_res=None):
         img = img.copy()
@@ -137,22 +137,22 @@ class Debugger(object):
         return color_map
 
     '''
-    # slow
-    def gen_colormap_hp(self, img, output_res=None):
-      # num_classes = len(self.colors)
-      # img[img < 0] = 0
-      h, w = img.shape[1], img.shape[2]
-      if output_res is None:
-        output_res = (h * self.down_ratio, w * self.down_ratio)
-      color_map = np.zeros((output_res[0], output_res[1], 3), dtype=np.uint8)
-      for i in range(img.shape[0]):
-        resized = cv2.resize(img[i], (output_res[1], output_res[0]))
-        resized = resized.reshape(output_res[0], output_res[1], 1)
-        cl =  self.colors_hp[i] if not (self.theme == 'white') else \
-          (255 - np.array(self.colors_hp[i]))
-        color_map = np.maximum(color_map, (resized * cl).astype(np.uint8))
-      return color_map
-    '''
+  # slow
+  def gen_colormap_hp(self, img, output_res=None):
+    # num_classes = len(self.colors)
+    # img[img < 0] = 0
+    h, w = img.shape[1], img.shape[2]
+    if output_res is None:
+      output_res = (h * self.down_ratio, w * self.down_ratio)
+    color_map = np.zeros((output_res[0], output_res[1], 3), dtype=np.uint8)
+    for i in range(img.shape[0]):
+      resized = cv2.resize(img[i], (output_res[1], output_res[0]))
+      resized = resized.reshape(output_res[0], output_res[1], 1)
+      cl =  self.colors_hp[i] if not (self.theme == 'white') else \
+        (255 - np.array(self.colors_hp[i]))
+      color_map = np.maximum(color_map, (resized * cl).astype(np.uint8))
+    return color_map
+  '''
 
     def gen_colormap_hp(self, img, output_res=None):
         c, h, w = img.shape[0], img.shape[1], img.shape[2]
@@ -196,6 +196,26 @@ class Debugger(object):
             cv2.putText(self.imgs[img_id], txt, (bbox[0], bbox[1] - 2),
                         font, 0.5, (0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
 
+    def add_sort_bbox(self, bbox, cat, track, show_txt=True, img_id='default'):
+        bbox = np.array(bbox, dtype=np.int32)
+        # cat = (int(cat) + 1) % 80
+        cat = int(cat)
+        # print('cat', cat, self.names[cat])
+        c = self.colors[cat][0][0].tolist()
+        if self.theme == 'white':
+            c = (255 - np.array(c)).tolist()
+        txt = 'Track: {}'.format(int(track))
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cat_size = cv2.getTextSize(txt, font, 0.5, 2)[0]
+        cv2.rectangle(
+            self.imgs[img_id], (bbox[0], bbox[1]), (bbox[2], bbox[3]), c, 2)
+        if show_txt:
+            cv2.rectangle(self.imgs[img_id],
+                          (bbox[0], bbox[1] - cat_size[1] - 2),
+                          (bbox[0] + cat_size[0], bbox[1] - 2), c, -1)
+            cv2.putText(self.imgs[img_id], txt, (bbox[0], bbox[1] - 2),
+                        font, 0.5, (0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
+
     def add_coco_hp(self, points, img_id='default'):
         points = np.array(points, dtype=np.int32).reshape(self.num_joints, 2)
         for j in range(self.num_joints):
@@ -206,6 +226,13 @@ class Debugger(object):
                 cv2.line(self.imgs[img_id], (points[e[0], 0], points[e[0], 1]),
                          (points[e[1], 0], points[e[1], 1]), self.ec[j], 2,
                          lineType=cv2.LINE_AA)
+
+    def add_fps(self, fps, img_id='default'):
+        txt = '{:.1f}'.format(fps)
+        shape = self.imgs[img_id].shape
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(self.imgs[img_id], txt, (shape[1] - 40, 20), font, 0.5, (255, 255, 255), thickness=1,
+                    lineType=cv2.LINE_AA)
 
     def add_points(self, points, img_id='default'):
         num_classes = len(points)
@@ -460,7 +487,7 @@ coco_class_name = [
     'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
 
-raccoons_class_name = ['raccoon']
+raccoons_class_name = ["raccoon"]
 
 color_list = np.array(
     [
