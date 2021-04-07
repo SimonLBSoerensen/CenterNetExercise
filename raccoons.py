@@ -22,7 +22,7 @@ class RACCOONS(data.Dataset):
     super(RACCOONS, self).__init__()
     self.data_dir = os.path.join(opt.data_dir, 'raccoons')
     self.img_dir = os.path.join(self.data_dir, 'images')
-    if split == 'test':
+    if split == 'val':
       self.annot_path = os.path.join(
           self.data_dir, 'annotations', 
           'test.json')
